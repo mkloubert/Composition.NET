@@ -45,6 +45,8 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Composition\MultiInstanceComposer.cs" />
+    <Compile Include="Composition\SingleInstanceComposer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceLocation\Composition\ExportProviderServiceLocator.cs" />
     <Compile Include="ServiceLocation\DelegateServiceLocator.InstanceProvider.cs">
