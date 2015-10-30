@@ -28,6 +28,7 @@
  **********************************************************************************************************************/
 
 using System;
+using System.Reflection;
 
 namespace MarcelJoachimKloubert.ServiceLocation
 {
@@ -57,7 +58,7 @@ namespace MarcelJoachimKloubert.ServiceLocation
             internal T Invoke<T>(IServiceLocator baseLocator, object key)
             {
                 return (T)this.PROVIDER
-                              .Method
+                              .GetMethodInfo()
                               .Invoke(obj: this.PROVIDER.Target,
                                       parameters: new object[] { baseLocator, key });
             }

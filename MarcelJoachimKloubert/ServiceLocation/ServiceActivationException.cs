@@ -29,7 +29,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 
 namespace MarcelJoachimKloubert.ServiceLocation
 {
@@ -91,12 +90,6 @@ namespace MarcelJoachimKloubert.ServiceLocation
 
             this.ServiceType = serviceType;
             this.Key = key;
-        }
-
-        /// <inheriteddoc />
-        protected ServiceActivationException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
         }
 
         #endregion Constructors (2)

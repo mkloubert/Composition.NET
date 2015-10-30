@@ -29,46 +29,46 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
+using System.Composition.Hosting;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace MarcelJoachimKloubert.ServiceLocation.Composition
 {
     /// <summary>
-    /// A service locator based on a <see cref="ExportProvider" /> like a <see cref="CompositionContainer" />.
+    /// A service locator based on a <see cref="CompositionHost" />.
     /// </summary>
-    public class ExportProviderServiceLocator : ServiceLocatorBase
+    public class CompositionHostServiceLocator : ServiceLocatorBase
     {
         #region Fields (1)
 
         /// <summary>
-        /// Stores the underlying <see cref="ExportProvider" />.
+        /// Stores the underlying <see cref="CompositionHost" />.
         /// </summary>
-        protected readonly ExportProvider _PROVIDER;
+        protected readonly CompositionHost _HOST;
 
         #endregion Fields (1)
 
         #region Constructors (1)
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExportProviderServiceLocator" /> class.
+        /// Initializes a new instance of the <see cref="CompositionHostServiceLocator" /> class.
         /// </summary>
-        /// <param name="provider">The underlying <see cref="ExportProvider" />.</param>
+        /// <param name="host">The underlying <see cref="CompositionHost" />.</param>
         /// <param name="syncRoot">The value for the <see cref="ServiceLocatorBase._SYNC_ROOT" /> field.</param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="provider" /> is <see langword="null" />.
+        /// <paramref name="host" /> is <see langword="null" />.
         /// </exception>
-        public ExportProviderServiceLocator(ExportProvider provider, object syncRoot = null)
+        public CompositionHostServiceLocator(CompositionHost host, object syncRoot = null)
             : base(syncRoot: syncRoot)
         {
-            if (provider == null)
+            if (host == null)
             {
-                throw new ArgumentNullException("provider");
+                throw new ArgumentNullException("host");
             }
 
-            this._PROVIDER = provider;
+            this._HOST = host;
         }
 
         #endregion Constructors (1)
@@ -95,8 +95,8 @@ namespace MarcelJoachimKloubert.ServiceLocation.Composition
             return obj.ToString();
         }
 
-        private static TResult InvokeGetExportedValueMethod<TResult>(Expression<Func<ExportProvider, TResult>> expr,
-                                                                     ExportProvider provider,
+        private static TResult InvokeGetExportedValueMethod<TResult>(Expression<Func<CompositionHost, TResult>> expr,
+                                                                     CompositionHost host,
                                                                      Type serviceType, string key)
         {
             var method = (expr.Body as MethodCallExpression).Method;
@@ -109,86 +109,40 @@ namespace MarcelJoachimKloubert.ServiceLocation.Composition
                 @params = new object[] { key };
             }
 
-            return (TResult)provider.GetType()
-                                    .GetMethods()
-                                    .First(m =>
+            return (TResult)host.GetType()
+                                .GetMethods()
+                                .First(m =>
+                                       {
+                                           if (m.Name != methodName)
                                            {
-                                               if (m.Name != methodName)
-                                               {
-                                                   return false;
-                                               }
+                                               return false;
+                                           }
 
-                                               if (!m.IsGenericMethod)
-                                               {
-                                                   return false;
-                                               }
+                                           if (!m.IsGenericMethod)
+                                           {
+                                               return false;
+                                           }
 
-                                               return m.GetParameters().Length == @params.Length;
-                                           }).MakeGenericMethod(serviceType)
-                                             .Invoke(obj: provider,
-                                                     parameters: @params.Length < 1 ? null : @params);
+                                           return m.GetParameters().Length == @params.Length;
+                                       }).MakeGenericMethod(serviceType)
+                                         .Invoke(obj: host,
+                                                 parameters: @params.Length < 1 ? null : @params);
         }
 
         /// <inheriteddoc />
         protected override IEnumerable<object> OnGetAllInstances(Type serviceType, object key)
         {
-            var strKey = AsString(key);
-
-            var container = this._PROVIDER as CompositionContainer;
-            if (container != null)
-            {
-                // handle as extended composition container
-
-                return InvokeGetExportedValueMethod(c => c.GetExportedValues<object>(),
-                                                    container,
-                                                    serviceType, strKey);
-            }
-
-            // old skool ...
-
-            if (strKey == null)
-            {
-                strKey = AttributedModelServices.GetContractName(serviceType);
-            }
-
-            return this._PROVIDER
-                       .GetExports<object>(contractName: strKey)
-                       .Select(x => x.Value);
+            return InvokeGetExportedValueMethod(h => h.GetExports<object>(),
+                                                this._HOST,
+                                                serviceType, AsString(key));
         }
 
         /// <inheriteddoc />
         protected override object OnGetInstance(Type serviceType, object key)
         {
-            var strKey = AsString(key);
-
-            var container = this._PROVIDER as CompositionContainer;
-            if (container != null)
-            {
-                // handle as extended composition container
-
-                return InvokeGetExportedValueMethod(c => c.GetExportedValue<object>(),
-                                                    container,
-                                                    serviceType, strKey);
-            }
-
-            // old skool ...
-
-            if (strKey == null)
-            {
-                strKey = AttributedModelServices.GetContractName(serviceType);
-            }
-
-            var lazyInstance = this._PROVIDER.GetExports<object>(contractName: strKey)
-                                             .FirstOrDefault();
-
-            if (lazyInstance != null)
-            {
-                // found
-                return lazyInstance.Value;
-            }
-
-            // not found
-            return null;
+            return InvokeGetExportedValueMethod(h => h.GetExport<object>(),
+                                                this._HOST,
+                                                serviceType, AsString(key));
         }
 
         #endregion Methods (4)

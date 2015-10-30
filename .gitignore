@@ -3,3 +3,7 @@
 /MarcelJoachimKloubert/bin
 /MarcelJoachimKloubert.Composition.Tests/obj
 /MarcelJoachimKloubert.Composition.Tests/bin
+/MarcelJoachimKloubert/project.lock.json
+/MarcelJoachimKloubert/MarcelJoachimKloubert.csproj.user
+/.vs/MarcelJoachimKloubert/v14/.suo
+/.vs/config/applicationhost.config
