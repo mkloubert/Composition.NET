@@ -29,8 +29,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
+using System.Composition;
+using System.Composition.Hosting;
 
 namespace MarcelJoachimKloubert.Composition
 {
@@ -45,22 +45,22 @@ namespace MarcelJoachimKloubert.Composition
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiInstanceComposer{T}" /> class.
         /// </summary>
-        /// <param name="container">The value for the <see cref="MultiInstanceComposer{T}.Container" /> property.</param>
+        /// <param name="host">The value for the <see cref="MultiInstanceComposer{T}.Host" /> property.</param>
         /// <param name="doRefresh">
         /// Do an initial call of <see cref="MultiInstanceComposer{T}.Refresh()" /> method or not.
         /// </param>
         /// <exception cref="ArgumentNullException">
-        /// <paramref name="container" /> is <see langword="null" />.
+        /// <paramref name="host" /> is <see langword="null" />.
         /// </exception>
-        public MultiInstanceComposer(CompositionContainer container,
+        public MultiInstanceComposer(CompositionHost host,
                                      bool doRefresh = true)
         {
-            if (container == null)
+            if (host == null)
             {
                 throw new ArgumentNullException("container");
             }
 
-            this.Container = container;
+            this.Host = host;
 
             if (doRefresh)
             {
@@ -73,18 +73,18 @@ namespace MarcelJoachimKloubert.Composition
         #region Properties (2)
 
         /// <summary>
-        /// Gets the underlying <see cref="CompositionContainer" /> instance.
+        /// Gets the underlying <see cref="CompositionHost" /> instance.
         /// </summary>
-        public CompositionContainer Container
+        public CompositionHost Host
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// Gets the last created instance by <see cref="MultiInstanceComposer{T}.Container" />.
+        /// Gets the last created instance by <see cref="MultiInstanceComposer{T}.Host" />.
         /// </summary>
-        [ImportMany(AllowRecomposition = true)]
+        [ImportMany]
         public List<T> Instances
         {
             get;
@@ -100,8 +100,8 @@ namespace MarcelJoachimKloubert.Composition
         /// </summary>
         public void Refresh()
         {
-            this.Container
-                .ComposeParts(this);
+            this.Host
+                .SatisfyImports(this);
         }
 
         #endregion Methods (1)
