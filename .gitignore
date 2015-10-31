@@ -7,3 +7,7 @@
 /MarcelJoachimKloubert/MarcelJoachimKloubert.csproj.user
 /.vs/MarcelJoachimKloubert/v14/.suo
 /.vs/config/applicationhost.config
+/MarcelJoachimKloubert.Composition.Tests/MarcelJoachimKloubert.Composition.Tests.csproj.user
+/MarcelJoachimKloubert.Composition.Tests/MarcelJoachimKloubert.Composition.Tests_TemporaryKey.pfx
+/MarcelJoachimKloubert.Composition.Tests/project.lock.json
+/MarcelJoachimKloubert.Composition.Tests/Package.appxmanifest
