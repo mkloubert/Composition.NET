@@ -85,7 +85,7 @@ namespace MarcelJoachimKloubert.Composition
         /// Gets the last created instance by <see cref="MultiInstanceComposer{T}.Container" />.
         /// </summary>
         [ImportMany(AllowRecomposition = true)]
-        public List<T> Instances
+        public IList<T> Instances
         {
             get;
             private set;
